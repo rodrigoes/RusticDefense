@@ -2,6 +2,7 @@ var canvas, ctx
 var LARGURA
 var ALTURA
 var frames = 0
+var GAMEOVER = false
 
 function clique(event) {
 
@@ -28,8 +29,13 @@ function main() {
 }
 
 function run() {
-    update();
-    draw();
+    if (GAMEOVER) {
+        drawGameOver()
+    }
+    else {
+        update()
+        draw()
+    }
 
     window.requestAnimationFrame(run)
 }
@@ -45,9 +51,15 @@ function draw() {
 
     tower.draw()
     enemy.draw()
+
+    drawUI();
 }
 
 //#region draws
+
+function drawUI() {
+    towerLife.draw();
+}
 
 function drawBrackground() {
     ctx.fillStyle = "#50beff"
@@ -73,9 +85,19 @@ var enemy = {
     speed: 5,
     color: 'red',
 
+    attack: 0.25,
+
     update: function () {
         if (this.posX + 2 * this.radius < tower.posX) {
             this.posX += this.speed
+        }
+        else {
+            if (towerLife.currentLife > 0) {
+                towerLife.currentLife -= this.attack
+            }
+            else {
+                GAMEOVER = true
+            }
         }
     },
 
@@ -108,5 +130,51 @@ var tower = {
         ctx.strokeRect(this.posX, ALTURA - 1.1 * this.height, LARGURA, this.height)
     }
 }
+
+//#region UI
+var towerLife = {
+    totalLife: 100,
+    currentLife: 100,
+    colorStroke: 'black',
+    colorFilled: 'green',
+    colorEmpty: 'red',
+
+    posX: 380,
+
+    draw: function () {
+        // Vida vazia
+        ctx.fillStyle = this.colorEmpty
+        ctx.fillRect(this.posX, 10, 200, 30)
+
+        // Vida Cheia
+        ctx.fillStyle = this.colorFilled
+        ctx.fillRect(this.posX, 10, this.currentLife / this.totalLife * 200, 30)
+
+        // Contorno
+        ctx.lineWidth = 7
+        ctx.strokeStyle = this.colorStroke
+        ctx.strokeRect(this.posX, 10, 200, 30)
+    }
+}
+
+function drawGameOver() {
+    gameOver.draw()
+}
+
+var gameOver = {
+    colorBottom: 'black',
+    text: "FIM DE JOGO!",
+    colorText: 'white',
+
+    draw: function () {
+        ctx.fillStyle = this.colorBottom
+        ctx.fillRect(0, 0, LARGURA, ALTURA)
+
+        ctx.font = '60px Impact'
+        ctx.fillStyle = this.colorText
+        ctx.fillText(this.text, 170, ALTURA / 2, )
+    }
+}
+//#endregion
 
 //#endregion
