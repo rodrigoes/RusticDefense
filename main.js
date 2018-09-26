@@ -8,7 +8,7 @@ function clique(event) {
 
 }
 
-function main() {
+$(function () {
     ALTURA = window.innerHeight
     LARGURA = window.innerWidth
 
@@ -25,48 +25,48 @@ function main() {
     document.body.appendChild(canvas)
     document.addEventListener("mousedown", clique)
 
-    run();
-}
+    run()
+})
 
 function run() {
-    if (GAMEOVER) {
-        drawGameOver()
-    }
-    else {
-        update()
-        draw()
-    }
+        if (GAMEOVER) {
+            drawGameOver()
+        }
+        else {
+            update()
+            draw()
+        }
 
-    window.requestAnimationFrame(run)
-}
+        window.requestAnimationFrame(run)
+    }
 
 function update() {
-    frames++
+        frames++
 
-    enemy.update()
-}
+        enemy.update()
+    }
 
 function draw() {
-    drawBrackground()
+        drawBrackground()
 
-    tower.draw()
-    enemy.draw()
+        tower.draw()
+        enemy.draw()
 
-    drawUI();
-}
+        drawUI()
+    }
 
 //#region draws
 
 function drawUI() {
-    towerLife.draw();
-}
+        towerLife.draw()
+    }
 
 function drawBrackground() {
-    ctx.fillStyle = "#50beff"
-    ctx.fillRect(0, 0, this.LARGURA, this.ALTURA)
-    chao.draw()
+        ctx.fillStyle = "#50beff"
+        ctx.fillRect(0, 0, this.LARGURA, this.ALTURA)
+        chao.draw()
 
-}
+    }
 
 var chao = {
     height: 150,
@@ -172,7 +172,7 @@ var gameOver = {
 
         ctx.font = '60px Impact'
         ctx.fillStyle = this.colorText
-        ctx.fillText(this.text, 170, ALTURA / 2, )
+        ctx.fillText(this.text, 170, ALTURA / 2)
     }
 }
 //#endregion
