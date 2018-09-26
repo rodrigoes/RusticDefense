@@ -14,7 +14,7 @@ $(function () {
 
     if (LARGURA >= 500) {
         LARGURA = 600
-        ALTURA = 600
+        ALTURA = 550
     }
 
     canvas = document.createElement("canvas")
@@ -22,7 +22,9 @@ $(function () {
     canvas.height = ALTURA
 
     ctx = canvas.getContext("2d")
-    document.body.appendChild(canvas)
+    var jogoID = document.getElementById("jogo")
+    jogoID.appendChild(canvas)
+
     document.addEventListener("mousedown", clique)
 
     run()
