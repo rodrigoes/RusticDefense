@@ -1,18 +1,21 @@
 var canvas, ctx
 var LARGURA
 var ALTURA
-var frames = 0
-var GAMEOVER = false
+var frames
+var GAMEOVER
+
+var animationFramID
 
 function clique(event) {
 
 }
 
 $(function () {
-    main()
+    criarCanvas()
+    drawInitialScreen()
 })
 
-function main(){
+function criarCanvas() {
     ALTURA = window.innerHeight
     LARGURA = window.innerWidth
 
@@ -30,49 +33,58 @@ function main(){
     jogoID.appendChild(canvas)
 
     document.addEventListener("mousedown", clique)
+}
+
+function iniciar() {
+    window.cancelAnimationFrame(animationFramID)
+    inicializarVariaveis()
 
     run()
 }
 
-function run() {
-        if (GAMEOVER) {
-            drawGameOver()
-        }
-        else {
-            update()
-            draw()
-        }
+function inicializarVariaveis() {
+    // Globais
+    frames = 0
+    GAMEOVER = false
 
-        window.requestAnimationFrame(run)
+    // Locais
+    enemy.reset()
+    towerLife.reset()
+}
+
+function run() {
+    if (!GAMEOVER) {
+        update()
+        draw()
     }
+    else {
+        drawGameOver()
+    }
+
+    animationFramID = window.requestAnimationFrame(run)
+}
 
 function update() {
-        frames++
+    frames++
 
-        enemy.update()
-    }
+    enemy.update()
+}
 
 function draw() {
-        drawBrackground()
+    drawBrackground()
 
-        tower.draw()
-        enemy.draw()
+    tower.draw()
+    enemy.draw()
 
-        drawUI()
-    }
+    drawUI()
+}
 
 //#region draws
-
-function drawUI() {
-        towerLife.draw()
-    }
-
 function drawBrackground() {
-        ctx.fillStyle = "#50beff"
-        ctx.fillRect(0, 0, this.LARGURA, this.ALTURA)
-        chao.draw()
-
-    }
+    ctx.fillStyle = "#50beff"
+    ctx.fillRect(0, 0, this.LARGURA, this.ALTURA)
+    chao.draw()
+}
 
 var chao = {
     height: 150,
@@ -118,6 +130,10 @@ var enemy = {
         ctx.lineWidth = 7
         ctx.strokeStyle = '#770000'
         ctx.stroke()
+    },
+
+    reset: function () {
+        this.posX = 30
     }
 }
 
@@ -138,6 +154,29 @@ var tower = {
 }
 
 //#region UI
+function drawInitialScreen() {
+    initialScreen.draw()
+}
+
+var initialScreen = {
+    colorBottom: '#1a1a1a',
+    text: "RUSTIC DEFENSE",
+    colorText: 'red',
+
+    draw: function () {
+        ctx.fillStyle = this.colorBottom
+        ctx.fillRect(0, 0, LARGURA, ALTURA)
+
+        ctx.font = '60px Impact'
+        ctx.fillStyle = this.colorText
+        ctx.fillText(this.text, 120, ALTURA / 2)
+    }
+}
+
+function drawUI() {
+    towerLife.draw()
+}
+
 var towerLife = {
     totalLife: 100,
     currentLife: 100,
@@ -160,6 +199,11 @@ var towerLife = {
         ctx.lineWidth = 7
         ctx.strokeStyle = this.colorStroke
         ctx.strokeRect(this.posX, 10, 200, 30)
+    },
+
+    reset: function () {
+        this.totalLife = 100
+        this.currentLife = 100
     }
 }
 
