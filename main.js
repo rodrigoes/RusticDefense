@@ -9,6 +9,10 @@ function clique(event) {
 }
 
 $(function () {
+    main()
+})
+
+function main(){
     ALTURA = window.innerHeight
     LARGURA = window.innerWidth
 
@@ -28,7 +32,7 @@ $(function () {
     document.addEventListener("mousedown", clique)
 
     run()
-})
+}
 
 function run() {
         if (GAMEOVER) {
