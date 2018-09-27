@@ -15,7 +15,6 @@ function clique(event) {
 }
 
 $(function () {
-    
     createCanvas()
     drawInitialScreen()
 })
@@ -63,12 +62,12 @@ function run() {
     if (!GAMEOVER) {
         update()
         draw()
+        animationFramID = window.requestAnimationFrame(run)
     }
     else {
         drawGameOver()
+        gameOver.saveData()
     }
-
-    animationFramID = window.requestAnimationFrame(run)
 }
 
 function update() {
@@ -76,6 +75,8 @@ function update() {
 
     target.update()
     enemy.update()
+
+    score.update()
 }
 
 function draw() {
@@ -164,7 +165,7 @@ var enemy = {
     radius: 25,
     posX: 30,
     posY: 460,
-    speed: 5,
+    speed: 3,
     color: 'red',
 
     attack: 0.25,
@@ -188,8 +189,8 @@ var enemy = {
 
     draw: function () {
         if (this.life <= 0) return
-            // Desenha circulo
-            ctx.beginPath()
+        // Desenha circulo
+        ctx.beginPath()
         ctx.arc(this.posX, this.posY, this.radius, 0, 2 * Math.PI, false)
         ctx.fillStyle = this.color
         ctx.fill()
@@ -248,7 +249,23 @@ var initialScreen = {
 }
 
 function drawUI() {
+    score.draw()
     towerLife.draw()
+}
+
+var score = {
+    score: '0',
+    colorText: 'black',
+
+    update: function () {
+        this.score = Math.round(frames / 10).toString()
+    },
+
+    draw: function () {
+        ctx.font = '30px Impact'
+        ctx.fillStyle = this.colorText
+        ctx.fillText('Pontos: ' + this.score, 15, 38)
+    }
 }
 
 var towerLife = {
@@ -297,6 +314,11 @@ var gameOver = {
         ctx.font = '60px Impact'
         ctx.fillStyle = this.colorText
         ctx.fillText(this.text, 170, ALTURA / 2)
+    },
+
+    saveData: function () {
+        localStorage.setItem('Jogador 1', score.score)
+        console.log(localStorage.getItem('Jogador 1'))
     }
 }
 //#endregion
