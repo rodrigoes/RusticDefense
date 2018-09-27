@@ -7,15 +7,20 @@ var GAMEOVER
 var animationFramID
 
 function clique(event) {
+    var dist = Math.hypot(target.x - enemy.posX, target.y - enemy.posY)
 
+    if (dist < enemy.radius) {
+        enemy.receiveDamage(weapon.damage)
+    }
 }
 
 $(function () {
-    criarCanvas()
+    
+    createCanvas()
     drawInitialScreen()
 })
 
-function criarCanvas() {
+function createCanvas() {
     ALTURA = window.innerHeight
     LARGURA = window.innerWidth
 
@@ -50,6 +55,8 @@ function inicializarVariaveis() {
     // Locais
     enemy.reset()
     towerLife.reset()
+
+    cursor.start()
 }
 
 function run() {
@@ -67,6 +74,7 @@ function run() {
 function update() {
     frames++
 
+    target.update()
     enemy.update()
 }
 
@@ -77,6 +85,62 @@ function draw() {
     enemy.draw()
 
     drawUI()
+    target.draw()
+}
+
+var cursor = {
+    x: -30,
+    y: -30,
+
+    start: function () {
+        window.addEventListener('mousemove', function (e) {
+            cursor.x = e.pageX
+            cursor.y = e.pageY
+        })
+    }
+}
+
+var target = {
+    x: -30,
+    y: -30,
+    radius: 2,
+
+    update: function () {
+        // Get the canvas position
+        var rect = canvas.getBoundingClientRect()
+
+        // Take the cursor relative position
+        this.x = cursor.x - rect.left
+        this.y = cursor.y - rect.top
+    },
+
+    draw: function () {
+        // Desenha circulo
+        ctx.beginPath()
+        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false)
+
+        // Contorno
+        ctx.lineWidth = 5
+        ctx.strokeStyle = 'green'
+        ctx.stroke()
+
+        // Desenha circulo
+        ctx.beginPath()
+        ctx.arc(this.x, this.y, 10 * this.radius, 0, 2 * Math.PI, false)
+
+        // Contorno
+        ctx.lineWidth = 3
+        ctx.strokeStyle = 'green'
+        ctx.stroke()
+    }
+}
+
+var weapon = {
+    damage: 5,
+    cooldown: 0.25,
+    bullets: 5,
+    storage: 5,
+    maxStorage: 15
 }
 
 //#region draws
@@ -104,8 +168,11 @@ var enemy = {
     color: 'red',
 
     attack: 0.25,
+    life: 15,
 
     update: function () {
+        if (this.life <= 0) return
+
         if (this.posX + 2 * this.radius < tower.posX) {
             this.posX += this.speed
         }
@@ -120,8 +187,9 @@ var enemy = {
     },
 
     draw: function () {
-        // Desenha circulo
-        ctx.beginPath()
+        if (this.life <= 0) return
+            // Desenha circulo
+            ctx.beginPath()
         ctx.arc(this.posX, this.posY, this.radius, 0, 2 * Math.PI, false)
         ctx.fillStyle = this.color
         ctx.fill()
@@ -134,6 +202,12 @@ var enemy = {
 
     reset: function () {
         this.posX = 30
+    },
+
+    receiveDamage: function (damage) {
+        if (this.life >= 0) {
+            this.life -= damage
+        }
     }
 }
 

@@ -6,6 +6,7 @@ canvas {
     left: 0px;
     right: 0px;
     margin: auto;
+    cursor: none;
 }
 
 /*Limpar formatações padrão*/
