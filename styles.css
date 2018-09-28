@@ -36,6 +36,11 @@ body {
     margin: 0 auto;
 }
 
+#area-principal {
+    width: 720px;
+    margin: 55px auto 10px auto;
+}
+
 #logo {
     float: left;
 }

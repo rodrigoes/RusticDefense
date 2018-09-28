@@ -162,7 +162,7 @@ var chao = {
 }
 
 var enemy = {
-    radius: 25,
+    radius: 17,
     posX: 30,
     posY: 460,
     speed: 3,
@@ -174,7 +174,7 @@ var enemy = {
     update: function () {
         if (this.life <= 0) return
 
-        if (this.posX + 2 * this.radius < tower.posX) {
+        if (this.posX - this.radius < tower.posX) {
             this.posX += this.speed
         }
         else {
@@ -196,13 +196,14 @@ var enemy = {
         ctx.fill()
 
         // Contorno
-        ctx.lineWidth = 7
+        ctx.lineWidth = 5
         ctx.strokeStyle = '#770000'
         ctx.stroke()
     },
 
     reset: function () {
         this.posX = 30
+        this.life = 15
     },
 
     receiveDamage: function (damage) {
@@ -213,13 +214,21 @@ var enemy = {
 }
 
 var tower = {
-    height: 250,
+    height: 300,
     color: "gray",
-    posX: 450,
+    posX: 380,
 
     draw: function () {
+        var image = new Image()
+        image.src = "img/castle.png"
+        image.height *= 0.8
+        image.width *= 0.5
+
+        ctx.drawImage(image, this.posX, ALTURA - 1.12 * image.height, image.width, image.height)
+        return
+
         ctx.fillStyle = this.color
-        ctx.fillRect(this.posX, ALTURA - 1.1 * this.height, LARGURA, this.height)
+        ctx.fillRect(this.posX, ALTURA - 1.1 * this.height, LARGURA - this.posX, this.height)
 
         // Contorno
         ctx.lineWidth = 7
