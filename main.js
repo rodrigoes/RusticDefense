@@ -9,7 +9,7 @@ var animationFramID
 function clique(event) {
     var dist = Math.hypot(target.x - enemy.posX, target.y - enemy.posY)
 
-    if (dist < enemy.radius) {
+    if (dist < 1.5 * enemy.radius) {
         enemy.receiveDamage(weapon.damage)
     }
 }
