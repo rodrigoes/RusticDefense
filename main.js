@@ -52,7 +52,7 @@ function inicializarVariaveis() {
     GAMEOVER = false
 
     // Locais
-    enemy.reset()
+    //enemy.reset()
     towerLife.reset()
 
     cursor.start()
@@ -74,7 +74,7 @@ function update() {
     frames++
 
     target.update()
-    enemy.update()
+    enemies.update()
 
     score.update()
 }
@@ -83,7 +83,7 @@ function draw() {
     drawBrackground()
 
     tower.draw()
-    enemy.draw()
+    enemies.draw()
 
     drawUI()
     target.draw()
@@ -161,17 +161,37 @@ var chao = {
     }
 }
 
-var enemy = {
-    radius: 17,
-    posX: 30,
-    posY: 460,
-    speed: 3,
-    color: 'red',
+var enemies = {
+    chars: [],
 
-    attack: 0.25,
-    life: 15,
+    insert: function() {
+        this.chars.push(new enemy())
+    },
 
-    update: function () {
+    update: function(){
+        this.chars.forEach(element => {
+            element.update()
+        })
+    },
+
+    draw: function(){
+        this.chars.forEach(element => {
+            element.draw()
+        })
+    }
+}
+
+function enemy(y) {
+    this.radius = 17
+    this.posX = 30
+    this.posY = y
+    this.speed = 3
+    this.color = 'red'
+
+    this.attack = 0.25
+    this.life = 15
+
+    update = function () {
         if (this.life <= 0) return
 
         if (this.posX - this.radius < tower.posX) {
@@ -185,9 +205,9 @@ var enemy = {
                 GAMEOVER = true
             }
         }
-    },
+    }
 
-    draw: function () {
+    draw = function () {
         if (this.life <= 0) return
         // Desenha circulo
         ctx.beginPath()
@@ -199,14 +219,9 @@ var enemy = {
         ctx.lineWidth = 5
         ctx.strokeStyle = '#770000'
         ctx.stroke()
-    },
+    }
 
-    reset: function () {
-        this.posX = 30
-        this.life = 15
-    },
-
-    receiveDamage: function (damage) {
+    receiveDamage = function (damage) {
         if (this.life >= 0) {
             this.life -= damage
         }
