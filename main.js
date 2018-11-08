@@ -20,23 +20,27 @@ $(function () {
 })
 
 function createCanvas() {
+    
+    //Atribui valores de altura e largura, caso a largura seja maior ou igual a 500,atribui valores definidos(550,600).
     ALTURA = window.innerHeight
     LARGURA = window.innerWidth
-
+    
+    
     if (LARGURA >= 500) {
         LARGURA = 600
         ALTURA = 550
     }
 
+
     canvas = document.createElement("canvas")
     canvas.width = LARGURA
-    canvas.height = ALTURA
-
-    ctx = canvas.getContext("2d")
+    canvas.height = ALTURA 
+ 
+    ctx = canvas.getContext("2d")//Elementos 2d.
     var jogoID = document.getElementById("jogo")
     jogoID.appendChild(canvas)
 
-    document.addEventListener("mousedown", clique)
+    document.addEventListener("mousedown", clique) //Clique.
 }
 
 function iniciar() {
@@ -47,12 +51,12 @@ function iniciar() {
 }
 
 function inicializarVariaveis() {
-    // Globais
+    // Globais.
     frames = 0
     GAMEOVER = false
 
-    // Locais
-    //enemy.reset()
+    // Locais.
+    enemy.reset()
     towerLife.reset()
 
     cursor.start()
@@ -63,7 +67,7 @@ function run() {
         update()
         draw()
         animationFramID = window.requestAnimationFrame(run)
-    }
+    }     
     else {
         drawGameOver()
         gameOver.saveData()
@@ -74,7 +78,7 @@ function update() {
     frames++
 
     target.update()
-    enemies.update()
+    enemy.update()
 
     score.update()
 }
@@ -83,7 +87,7 @@ function draw() {
     drawBrackground()
 
     tower.draw()
-    enemies.draw()
+    enemy.draw()
 
     drawUI()
     target.draw()
@@ -115,23 +119,24 @@ var target = {
         this.y = cursor.y - rect.top
     },
 
+    //Cursor.
     draw: function () {
-        // Desenha circulo
+        // Desenha o circulo.
         ctx.beginPath()
         ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false)
 
-        // Contorno
+        // Contorno.
         ctx.lineWidth = 5
-        ctx.strokeStyle = 'green'
+        ctx.strokeStyle = '#ff6600'
         ctx.stroke()
 
-        // Desenha circulo
+        // Desenha o circulo
         ctx.beginPath()
         ctx.arc(this.x, this.y, 10 * this.radius, 0, 2 * Math.PI, false)
 
-        // Contorno
+        // Contorno.
         ctx.lineWidth = 3
-        ctx.strokeStyle = 'green'
+        ctx.strokeStyle = '#ff6600'
         ctx.stroke()
     }
 }
@@ -148,50 +153,36 @@ var weapon = {
 function drawBrackground() {
     ctx.fillStyle = "#50beff"
     ctx.fillRect(0, 0, this.LARGURA, this.ALTURA)
+
+    // Nuvem a implementar em outra função.
+    //ctx.fillStyle = "white"
+    //ctx.fillRect(200, 100, 100, 40)
+    
     chao.draw()
 }
 
 var chao = {
     height: 150,
-    color: "#ffdf70",
-
+  //color: "#ffdf70",
+    color: "#00cc66",
     draw: function () {
         ctx.fillStyle = this.color
+        // X, Y, Largura, Altura.
         ctx.fillRect(0, ALTURA - this.height, LARGURA, this.height)
     }
-}
+} 
 
-var enemies = {
-    chars: [],
+var enemy = {
+    radius: 17,
+    posX: 30,
+    posY: 460,
+    speed: 5,
+    color: 'red',
 
-    insert: function() {
-        this.chars.push(new enemy())
-    },
+    attack: 0.25,
+    life: 15,
 
-    update: function(){
-        this.chars.forEach(element => {
-            element.update()
-        })
-    },
-
-    draw: function(){
-        this.chars.forEach(element => {
-            element.draw()
-        })
-    }
-}
-
-function enemy(y) {
-    this.radius = 17
-    this.posX = 30
-    this.posY = y
-    this.speed = 3
-    this.color = 'red'
-
-    this.attack = 0.25
-    this.life = 15
-
-    update = function () {
+    update: function () {
         if (this.life <= 0) return
 
         if (this.posX - this.radius < tower.posX) {
@@ -205,23 +196,28 @@ function enemy(y) {
                 GAMEOVER = true
             }
         }
-    }
+    },
 
-    draw = function () {
+    draw: function () {
         if (this.life <= 0) return
-        // Desenha circulo
+        // Desenha o circulo.
         ctx.beginPath()
         ctx.arc(this.posX, this.posY, this.radius, 0, 2 * Math.PI, false)
         ctx.fillStyle = this.color
         ctx.fill()
 
-        // Contorno
+        // Contorno.
         ctx.lineWidth = 5
         ctx.strokeStyle = '#770000'
         ctx.stroke()
-    }
+    },
 
-    receiveDamage = function (damage) {
+    reset: function () {
+        this.posX = 30
+        this.life = 15
+    },
+
+    receiveDamage: function (damage) {
         if (this.life >= 0) {
             this.life -= damage
         }
@@ -234,14 +230,29 @@ var tower = {
     posX: 380,
 
     draw: function () {
-        var image = new Image()
-        image.src = "img/castle.png"
+        
+        var image = new Image() //Porta.
+        var image2 = new Image() //Andares.
+        image.src = "img/peça1.png"
+        image2.src = "img/peça2.png"
+    
+        /*
         image.height *= 0.8
-        image.width *= 0.5
+        image.width *= 0.8
+        */
+               
+       
+      // ctx.drawImage(image2, this.posX , ALTURA - 1.15 *  image.height,  image.width,  image.height)
+         ctx.drawImage(image,  this.posX, ALTURA  - 2.15 *  image2.height, image2.width, image2.height)
+        
+        for(var i=3.15;i<=9.15;i++){
+        ctx.drawImage(image2, this.posX, ALTURA  - i *  image2.height, image2.width, image2.height)
+        i
+        }
 
-        ctx.drawImage(image, this.posX, ALTURA - 1.12 * image.height, image.width, image.height)
         return
 
+        /*
         ctx.fillStyle = this.color
         ctx.fillRect(this.posX, ALTURA - 1.1 * this.height, LARGURA - this.posX, this.height)
 
@@ -249,6 +260,7 @@ var tower = {
         ctx.lineWidth = 7
         ctx.strokeStyle = '#050505'
         ctx.strokeRect(this.posX, ALTURA - 1.1 * this.height, LARGURA, this.height)
+        */
     }
 }
 
@@ -259,8 +271,8 @@ function drawInitialScreen() {
 
 var initialScreen = {
     colorBottom: '#1a1a1a',
-    text: "RUSTIC DEFENSE",
-    colorText: 'red',
+    text: "BUILDING DEFENSE",
+    colorText: '#00bfff',
 
     draw: function () {
         ctx.fillStyle = this.colorBottom
@@ -268,7 +280,7 @@ var initialScreen = {
 
         ctx.font = '60px Impact'
         ctx.fillStyle = this.colorText
-        ctx.fillText(this.text, 120, ALTURA / 2)
+        ctx.fillText(this.text, 95, ALTURA / 2)
     }
 }
 
@@ -288,7 +300,7 @@ var score = {
     draw: function () {
         ctx.font = '30px Impact'
         ctx.fillStyle = this.colorText
-        ctx.fillText('Pontos: ' + this.score, 15, 38)
+        ctx.fillText('PONTOS: ' + this.score, 15, 75)
     }
 }
 
@@ -296,24 +308,23 @@ var towerLife = {
     totalLife: 100,
     currentLife: 100,
     colorStroke: 'black',
-    colorFilled: 'green',
-    colorEmpty: 'red',
-
-    posX: 380,
+    colorFilled: '#00cc66', // Tom de verde.
+    colorEmpty: '#ff4000',  // Tom de vermelho.
+    posX: 15,
 
     draw: function () {
-        // Vida vazia
+        // Vida vazia.
         ctx.fillStyle = this.colorEmpty
-        ctx.fillRect(this.posX, 10, 200, 30)
+        ctx.fillRect(this.posX, 10, 350, 30)
 
-        // Vida Cheia
+        // Vida Cheia.
         ctx.fillStyle = this.colorFilled
-        ctx.fillRect(this.posX, 10, this.currentLife / this.totalLife * 200, 30)
+        ctx.fillRect(this.posX, 10, this.currentLife / this.totalLife * 350, 30)
 
-        // Contorno
+        // Contorno.
         ctx.lineWidth = 7
         ctx.strokeStyle = this.colorStroke
-        ctx.strokeRect(this.posX, 10, 200, 30)
+        ctx.strokeRect(this.posX, 10, 350, 30)
     },
 
     reset: function () {
@@ -328,7 +339,7 @@ function drawGameOver() {
 
 var gameOver = {
     colorBottom: 'black',
-    text: "FIM DE JOGO!",
+    text: "GAME OVER!",
     colorText: 'white',
 
     draw: function () {
@@ -338,12 +349,10 @@ var gameOver = {
         ctx.font = '60px Impact'
         ctx.fillStyle = this.colorText
         ctx.fillText(this.text, 170, ALTURA / 2)
+        ctx.fillStyle = this.colorText
+        ctx.fillText('Pontos: ' + score, 170, ALTURA /4)
     },
 
-    saveData: function () {
-        localStorage.setItem('Jogador 1', score.score)
-        console.log(localStorage.getItem('Jogador 1'))
-    }
 }
 //#endregion
 
