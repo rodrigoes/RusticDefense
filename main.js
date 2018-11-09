@@ -6,18 +6,39 @@ var GAMEOVER
 
 var animationFramID
 
-function clique(event) {
-    var dist = Math.hypot(target.x - enemy.posX, target.y - enemy.posY)
+var enemies = [];
+var enemyID = 0;
 
-    if (dist < 1.5 * enemy.radius) {
-        enemy.receiveDamage(weapon.damage)
-    }
+var colors = ["red", "blue", "yellow", "green", "white", "black"]
+
+function clique(event) {
+    enemies.forEach(enemy => {
+        var dist = Math.hypot(target.x - enemy.posX, target.y - enemy.posY)
+
+        if (dist < 1.5 * enemy.radius) {
+            enemy.receiveDamage(weapon.damage)
+        }
+    });
+
+    if( target.x >= tower.posX && target.x <= (tower.posX + (enemyStack.enemyRadius * 2)) &&
+        target.y <= 480 && target.y > (460 - enemyStack.enemies.length * enemyStack.enemyRadius * 2))
+        {
+            enemyStack.receiveDamage(weapon.damage)
+        }
 }
 
 $(function () {
     createCanvas()
     drawInitialScreen()
+
+    setInterval(spawnEnemy, 2000)
 })
+
+function spawnEnemy() {
+    enemies.push(new enemy(enemyID))
+
+    enemyID++;
+}
 
 function createCanvas() {
     
@@ -56,7 +77,7 @@ function inicializarVariaveis() {
     GAMEOVER = false
 
     // Locais.
-    enemy.reset()
+    enemies.forEach(enemy => enemy.reset());
     towerLife.reset()
 
     cursor.start()
@@ -72,13 +93,18 @@ function run() {
         drawGameOver()
         gameOver.saveData()
     }
+
+    console.log(enemyStack)
 }
 
 function update() {
     frames++
 
     target.update()
-    enemy.update()
+
+    enemies.forEach(enemy => enemy.update())
+
+    enemyStack.update()
 
     score.update()
 }
@@ -87,7 +113,10 @@ function draw() {
     drawBrackground()
 
     tower.draw()
-    enemy.draw()
+
+    enemies.forEach(enemy => enemy.draw());
+
+    enemyStack.draw()
 
     drawUI()
     target.draw()
@@ -172,34 +201,29 @@ var chao = {
     }
 } 
 
-var enemy = {
-    radius: 17,
-    posX: 30,
-    posY: 460,
-    speed: 5,
-    color: 'red',
+class enemy {
 
-    attack: 0.25,
-    life: 15,
+    constructor(id) {
+        this.id = id;
+        this.radius = 17;
+        this.posX = 30;
+        this.posY = 460;
+        this.speed = 3;
+        this.color = colors[Math.floor(Math.random()*colors.length)];
+        this.life = 15;
+    }
 
-    update: function () {
-        if (this.life <= 0) return
-
+    update() {
         if (this.posX - this.radius < tower.posX) {
             this.posX += this.speed
         }
         else {
-            if (towerLife.currentLife > 0) {
-                towerLife.currentLife -= this.attack
-            }
-            else {
-                GAMEOVER = true
-            }
+            enemyStack.add(this)
+            enemies = enemies.filter(e => e.id != this.id);
         }
-    },
+    }
 
-    draw: function () {
-        if (this.life <= 0) return
+    draw() {
         // Desenha o circulo.
         ctx.beginPath()
         ctx.arc(this.posX, this.posY, this.radius, 0, 2 * Math.PI, false)
@@ -210,18 +234,80 @@ var enemy = {
         ctx.lineWidth = 5
         ctx.strokeStyle = '#770000'
         ctx.stroke()
-    },
+    }
 
-    reset: function () {
+    reset() {
         this.posX = 30
         this.life = 15
-    },
+    }
 
-    receiveDamage: function (damage) {
+    receiveDamage(damage) {
         if (this.life >= 0) {
             this.life -= damage
+            return
+        }
+
+        enemies = enemies.filter(e => e.id != this.id);
+    }
+}
+
+var enemyStack = {
+    enemies: [],
+    life: 0,
+    attackValue: 1,
+    enemyRadius: 17,
+
+    update: function()
+    {
+        this.attack()
+    },
+
+    draw: function() {
+        for(i = 0; i < this.enemies.length; i++)
+        {
+             // Desenha o circulo.
+            ctx.beginPath()
+            ctx.arc(tower.posX + this.enemyRadius, (460 - (i * this.enemyRadius * 2)), this.enemyRadius, 0, 2 * Math.PI, false)
+            ctx.fillStyle = this.enemies[i].color;
+            ctx.fill()
+
+            // Contorno.
+            ctx.lineWidth = 5
+            ctx.strokeStyle = '#770000'
+            ctx.stroke()
+        }
+    },
+
+    add: function(enemy) {
+        this.enemies.push(enemy)
+        this.life += enemy.life
+    },
+
+    remove: function() {
+        this.enemies.pop()
+    },
+
+    receiveDamage: function(damage)
+    {
+        this.life -= damage
+
+        if(this.life < this.enemies.length * 15)
+        {
+            this.remove();
+        }
+
+        if(this.life < 0) this.life = 0;
+    },
+
+    attack: function() {
+        if (towerLife.currentLife > 0) {
+            towerLife.currentLife -= this.attackValue * this.enemies.length
+        }
+        else {
+            GAMEOVER = true
         }
     }
+
 }
 
 var tower = {
@@ -305,8 +391,8 @@ var score = {
 }
 
 var towerLife = {
-    totalLife: 100,
-    currentLife: 100,
+    totalLife: 10000,
+    currentLife: 10000,
     colorStroke: 'black',
     colorFilled: '#00cc66', // Tom de verde.
     colorEmpty: '#ff4000',  // Tom de vermelho.
@@ -328,8 +414,8 @@ var towerLife = {
     },
 
     reset: function () {
-        this.totalLife = 100
-        this.currentLife = 100
+        this.totalLife = 10000
+        this.currentLife = 10000
     }
 }
 
