@@ -3,7 +3,6 @@ var LARGURA
 var ALTURA
 var frames
 var GAMEOVER
-
 var animationFramID
 
 var enemies = [];
@@ -31,11 +30,11 @@ $(function () {
     createCanvas()
     drawInitialScreen()
 
-    setInterval(spawnEnemy, 2000)
+    setInterval(spawnEnemy, 2000) //2 segundos.
 })
 
 function spawnEnemy() {
-    enemies.push(new enemy(enemyID))
+    enemies.push(new enemy(enemyID)) //adiciona
 
     enemyID++;
 }
@@ -110,6 +109,7 @@ function update() {
 }
 
 function draw() {
+    
     drawBrackground()
 
     tower.draw()
@@ -215,7 +215,7 @@ class enemy {
 
     update() {
         if (this.posX - this.radius < tower.posX) {
-            this.posX += this.speed
+            this.posX += this.speed;
         }
         else {
             enemyStack.add(this)
@@ -281,6 +281,8 @@ var enemyStack = {
     add: function(enemy) {
         this.enemies.push(enemy)
         this.life += enemy.life
+        
+    
     },
 
     remove: function() {
@@ -317,11 +319,12 @@ var tower = {
 
     draw: function () {
         
-        var image = new Image() //Porta.
+        var image  = new Image() //Porta.
         var image2 = new Image() //Andares.
-        image.src = "img/peça1.png"
+        var image3 = new Image() //escada.
+        image.src  = "img/peça1.png"
         image2.src = "img/peça2.png"
-    
+        image3.src = "img/escada-cutout.png"
         /*
         image.height *= 0.8
         image.width *= 0.8
@@ -333,8 +336,9 @@ var tower = {
         
         for(var i=3.15;i<=9.15;i++){
         ctx.drawImage(image2, this.posX, ALTURA  - i *  image2.height, image2.width, image2.height)
-        i
         }
+        ctx.drawImage(image3,  this.posX, ALTURA  - 1.13 *  image3.height * 0.9, image3.width * 0.8, image3.height * 0.9)
+        
 
         return
 
@@ -387,6 +391,11 @@ var score = {
         ctx.font = '30px Impact'
         ctx.fillStyle = this.colorText
         ctx.fillText('PONTOS: ' + this.score, 15, 75)
+    },
+    drawhite: function () {
+        ctx.font = '60px Impact'
+        ctx.fillStyle = "white"
+        ctx.fillText('PONTOS: ' + this.score, 150, 150)
     }
 }
 
@@ -426,17 +435,19 @@ function drawGameOver() {
 var gameOver = {
     colorBottom: 'black',
     text: "GAME OVER!",
-    colorText: 'white',
+    colorText: '#EE4000',
 
     draw: function () {
         ctx.fillStyle = this.colorBottom
         ctx.fillRect(0, 0, LARGURA, ALTURA)
 
-        ctx.font = '60px Impact'
+        ctx.font = '100px Impact'
         ctx.fillStyle = this.colorText
-        ctx.fillText(this.text, 170, ALTURA / 2)
+        ctx.fillText(this.text, 65, ALTURA / 2)
         ctx.fillStyle = this.colorText
-        ctx.fillText('Pontos: ' + score, 170, ALTURA /4)
+        //score.update();
+        // ctx.fillText('Pontos: ' + this.score, 170, ALTURA /4)
+        score.drawhite();
     },
 
 }
