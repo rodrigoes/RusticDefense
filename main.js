@@ -4,6 +4,7 @@ var ALTURA
 var frames
 var GAMEOVER
 var animationFramID
+var record
 
 var enemies = [];
 var enemyID = 0;
@@ -60,11 +61,18 @@ function createCanvas() {
     jogoID.appendChild(canvas)
 
     document.addEventListener("mousedown", clique) //Clique.
+
 }
 
 function iniciar() {
     window.cancelAnimationFrame(animationFramID)
     inicializarVariaveis()
+   
+    record = localStorage.getItem("record");
+   
+    if(record = null){
+        record = 0;
+    }
 
     run()
 }
@@ -91,7 +99,7 @@ function run() {
     }
     else {
         drawGameOver()
-        gameOver.saveData()
+    
     }
 
     console.log(enemyStack)
@@ -204,7 +212,7 @@ var chao = {
         arvore.src = "img/arvore.png"
         // ctx.drawImage(image2, this.posX , ALTURA - 1.15 *  image.height,  image.width,  image.height)
         
-        for(var i=10;i<=550;i+=90){
+        for(var i=10;i<=550;i+=110){
             ctx.drawImage(arvore, i, 300, arvore.width * 0.2, arvore.height * 0.2)
                 }
     }
@@ -365,7 +373,7 @@ var tower = {
         }
 
         
-        ctx.drawImage(image3, this.posX, ALTURA - 1.13 * image3.height * 0.9, image3.width * 0.8, image3.height * 0.9)
+        ctx.drawImage(image3, this.posX - 10, ALTURA - 1.13 * image3.height * 0.9, image3.width * 0.8, image3.height * 0.9)
 
 
         return
@@ -425,6 +433,8 @@ var score = {
         ctx.fillStyle = "white"
         ctx.fillText('PONTOS: ' + this.score, 150, 150)
     }
+
+
 }
 
 var towerLife = {
@@ -453,14 +463,21 @@ var towerLife = {
     reset: function () {
         this.totalLife = 10000
         this.currentLife = 10000
-    }
+    
+        if(this.score > record){
+            localStorage.setItem("record", this.score);
+        }
+        this.score = 0
+    },
+
+  
 }
 
 function drawGameOver() {
     gameOver.draw()
 }
 
-var gameOver = {
+var gameOver = {  
     colorBottom: 'black',
     text: "GAME OVER!",
     colorText: '#EE4000',
