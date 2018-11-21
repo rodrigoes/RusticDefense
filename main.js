@@ -8,7 +8,7 @@ var animationFramID
 var enemies = [];
 var enemyID = 0;
 
-var colors = ["red", "blue", "yellow", "green", "white", "black"]
+var colors = ["red", "blue", "yellow", "green", "orange", "black"]
 
 function clique(event) {
     enemies.forEach(enemy => {
@@ -19,18 +19,17 @@ function clique(event) {
         }
     });
 
-    if( target.x >= tower.posX && target.x <= (tower.posX + (enemyStack.enemyRadius * 2)) &&
-        target.y <= 480 && target.y > (460 - enemyStack.enemies.length * enemyStack.enemyRadius * 2))
-        {
-            enemyStack.receiveDamage(weapon.damage)
-        }
+    if (target.x >= tower.posX && target.x <= (tower.posX + (enemyStack.enemyRadius * 2)) &&
+        target.y <= 480 && target.y > (460 - enemyStack.enemies.length * enemyStack.enemyRadius * 2)) {
+        enemyStack.receiveDamage(weapon.damage)
+    }
 }
 
 $(function () {
     createCanvas()
     drawInitialScreen()
 
-    setInterval(spawnEnemy, 2000) //2 segundos.
+    setInterval(spawnEnemy, 1000) //1 segundos.
 })
 
 function spawnEnemy() {
@@ -40,12 +39,12 @@ function spawnEnemy() {
 }
 
 function createCanvas() {
-    
+
     //Atribui valores de altura e largura, caso a largura seja maior ou igual a 500,atribui valores definidos(550,600).
     ALTURA = window.innerHeight
     LARGURA = window.innerWidth
-    
-    
+
+
     if (LARGURA >= 500) {
         LARGURA = 600
         ALTURA = 550
@@ -54,8 +53,8 @@ function createCanvas() {
 
     canvas = document.createElement("canvas")
     canvas.width = LARGURA
-    canvas.height = ALTURA 
- 
+    canvas.height = ALTURA
+
     ctx = canvas.getContext("2d")//Elementos 2d.
     var jogoID = document.getElementById("jogo")
     jogoID.appendChild(canvas)
@@ -75,6 +74,8 @@ function inicializarVariaveis() {
     frames = 0
     GAMEOVER = false
 
+    enemyStack.reset();
+
     // Locais.
     enemies.forEach(enemy => enemy.reset());
     towerLife.reset()
@@ -87,7 +88,7 @@ function run() {
         update()
         draw()
         animationFramID = window.requestAnimationFrame(run)
-    }     
+    }
     else {
         drawGameOver()
         gameOver.saveData()
@@ -109,7 +110,7 @@ function update() {
 }
 
 function draw() {
-    
+
     drawBrackground()
 
     tower.draw()
@@ -186,20 +187,28 @@ function drawBrackground() {
     // Nuvem a implementar em outra função.
     //ctx.fillStyle = "white"
     //ctx.fillRect(200, 100, 100, 40)
-    
+
     chao.draw()
 }
 
+
 var chao = {
     height: 150,
-  //color: "#ffdf70",
+    //color: "#ffdf70",
     color: "#00cc66",
     draw: function () {
         ctx.fillStyle = this.color
         // X, Y, Largura, Altura.
         ctx.fillRect(0, ALTURA - this.height, LARGURA, this.height)
+        var arvore = new Image() //arvore
+        arvore.src = "img/arvore.png"
+        // ctx.drawImage(image2, this.posX , ALTURA - 1.15 *  image.height,  image.width,  image.height)
+        
+        for(var i=10;i<=550;i+=90){
+            ctx.drawImage(arvore, i, 300, arvore.width * 0.2, arvore.height * 0.2)
+                }
     }
-} 
+}
 
 class enemy {
 
@@ -208,10 +217,25 @@ class enemy {
         this.radius = 17;
         this.posX = 30;
         this.posY = 460;
-        this.speed = 3;
-        this.color = colors[Math.floor(Math.random()*colors.length)];
-        this.life = 15;
+        this.speed = 10 + enemyStack.enemies.length;
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+        this.life = 5;
+      //["red", "blue", "yellow", "green", "white", "black"]
+        if(this.color == "red"){
+            this.life +=5;
+        }else if(this.color === "blue"){
+            this.life +=10;
+        }else if(this.color == "yellow"){
+            this.life +=15;
+        }else if(this.color == "green"){
+            this.life +=20;
+        }else if(this.color == "orange"){
+            this.life += 25;
+        }else if(this.color == "black"){
+            this.life += 30;
+        }
     }
+
 
     update() {
         if (this.posX - this.radius < tower.posX) {
@@ -257,15 +281,13 @@ var enemyStack = {
     attackValue: 1,
     enemyRadius: 17,
 
-    update: function()
-    {
+    update: function () {
         this.attack()
     },
 
-    draw: function() {
-        for(i = 0; i < this.enemies.length; i++)
-        {
-             // Desenha o circulo.
+    draw: function () {
+        for (i = 0; i < this.enemies.length; i++) {
+            // Desenha o circulo.
             ctx.beginPath()
             ctx.arc(tower.posX + this.enemyRadius, (460 - (i * this.enemyRadius * 2)), this.enemyRadius, 0, 2 * Math.PI, false)
             ctx.fillStyle = this.enemies[i].color;
@@ -278,36 +300,38 @@ var enemyStack = {
         }
     },
 
-    add: function(enemy) {
+    add: function (enemy) {
         this.enemies.push(enemy)
         this.life += enemy.life
-        
-    
+
+
     },
 
-    remove: function() {
+    remove: function () {
         this.enemies.pop()
     },
 
-    receiveDamage: function(damage)
-    {
+    receiveDamage: function (damage) {
         this.life -= damage
 
-        if(this.life < this.enemies.length * 15)
-        {
+        if (this.life < this.enemies.length * 15) {
             this.remove();
         }
 
-        if(this.life < 0) this.life = 0;
+        if (this.life < 0) this.life = 0;
     },
 
-    attack: function() {
+    attack: function () {
         if (towerLife.currentLife > 0) {
             towerLife.currentLife -= this.attackValue * this.enemies.length
         }
         else {
             GAMEOVER = true
         }
+    },
+
+    reset: function() {
+        this.enemies = [];
     }
 
 }
@@ -318,27 +342,31 @@ var tower = {
     posX: 380,
 
     draw: function () {
-        
-        var image  = new Image() //Porta.
+
+        var image = new Image() //Porta.
         var image2 = new Image() //Andares.
         var image3 = new Image() //escada.
-        image.src  = "img/peça1.png"
+        image.src = "img/peça1.png"
         image2.src = "img/peça2.png"
         image3.src = "img/escada-cutout.png"
         /*
         image.height *= 0.8
         image.width *= 0.8
         */
-               
-       
-      // ctx.drawImage(image2, this.posX , ALTURA - 1.15 *  image.height,  image.width,  image.height)
-         ctx.drawImage(image,  this.posX, ALTURA  - 2.15 *  image2.height, image2.width, image2.height)
-        
-        for(var i=3.15;i<=9.15;i++){
-        ctx.drawImage(image2, this.posX, ALTURA  - i *  image2.height, image2.width, image2.height)
+
+
+        // ctx.drawImage(image2, this.posX , ALTURA - 1.15 *  image.height,  image.width,  image.height)
+        ctx.drawImage(image, this.posX, ALTURA - 2.15 * image2.height, image2.width, image2.height)
+
+        var test = towerLife.currentLife / towerLife.totalLife;
+
+        for (var i = 3.15; i <= 9.15 * test; i++) {
+            ctx.drawImage(image2, this.posX, ALTURA - i * image2.height, image2.width, image2.height)
         }
-        ctx.drawImage(image3,  this.posX, ALTURA  - 1.13 *  image3.height * 0.9, image3.width * 0.8, image3.height * 0.9)
+
         
+        ctx.drawImage(image3, this.posX, ALTURA - 1.13 * image3.height * 0.9, image3.width * 0.8, image3.height * 0.9)
+
 
         return
 
@@ -360,7 +388,7 @@ function drawInitialScreen() {
 }
 
 var initialScreen = {
-    colorBottom: '#1a1a1a',
+    colorBottom: '#f3f3f3',
     text: "BUILDING DEFENSE",
     colorText: '#00bfff',
 
