@@ -6,31 +6,34 @@ var GAMEOVER
 var animationFramID
 var record
 
-var enemies = [];
-var enemyID = 0;
+
+var enemies = []
+var enemyID
+
+var spawnEnemyIntervalID
 
 var colors = ["red", "blue", "yellow", "green", "orange", "black"]
 
 function clique(event) {
     enemies.forEach(enemy => {
         var dist = Math.hypot(target.x - enemy.posX, target.y - enemy.posY)
-
+        
         if (dist < 1.5 * enemy.radius) {
             enemy.receiveDamage(weapon.damage)
+           
         }
     });
 
     if (target.x >= tower.posX && target.x <= (tower.posX + (enemyStack.enemyRadius * 2)) &&
         target.y <= 480 && target.y > (460 - enemyStack.enemies.length * enemyStack.enemyRadius * 2)) {
         enemyStack.receiveDamage(weapon.damage)
+        
     }
 }
 
 $(function () {
     createCanvas()
     drawInitialScreen()
-
-    setInterval(spawnEnemy, 1000) //1 segundos.
 })
 
 function spawnEnemy() {
@@ -61,20 +64,26 @@ function createCanvas() {
     jogoID.appendChild(canvas)
 
     document.addEventListener("mousedown", clique) //Clique.
-
+    /*var audio = new Audio('audio/menu.mp3')
+    menubar.play()
+*/
 }
 
 function iniciar() {
     window.cancelAnimationFrame(animationFramID)
     inicializarVariaveis()
-   
+
+    clearInterval(spawnEnemyIntervalID)
+    spawnEnemyIntervalID = setInterval(spawnEnemy, 1000) //1 segundos.
+
     record = localStorage.getItem("record");
-   
-    if(record = null){
+
+    if (record = null) {
         record = 0;
     }
 
     run()
+   
 }
 
 function inicializarVariaveis() {
@@ -85,7 +94,9 @@ function inicializarVariaveis() {
     enemyStack.reset();
 
     // Locais.
-    enemies.forEach(enemy => enemy.reset());
+    enemies = []
+    enemyID = 0;
+
     towerLife.reset()
 
     cursor.start()
@@ -96,13 +107,12 @@ function run() {
         update()
         draw()
         animationFramID = window.requestAnimationFrame(run)
+       // var menu = new Audio('audio/menu.mp3')
+       // menu.play()
     }
     else {
         drawGameOver()
-    
     }
-
-    console.log(enemyStack)
 }
 
 function update() {
@@ -208,17 +218,29 @@ var chao = {
         ctx.fillStyle = this.color
         // X, Y, Largura, Altura.
         ctx.fillRect(0, ALTURA - this.height, LARGURA, this.height)
-        var arvore = new Image() //arvore
+        var arvore = new Image() //Arvore.
+        var nuvem  = new Image() //Nuvem.
+        var sol    = new Image() //Sol.
         arvore.src = "img/arvore.png"
+        nuvem.src  = "img/nuvem.png"
+        sol.src    = "img/sol.png"
+
         // ctx.drawImage(image2, this.posX , ALTURA - 1.15 *  image.height,  image.width,  image.height)
-        
-        for(var i=10;i<=550;i+=110){
+
+        for (var i = 10; i <= 550; i += 110) {
             ctx.drawImage(arvore, i, 300, arvore.width * 0.2, arvore.height * 0.2)
-                }
+        }
+
+        ctx.drawImage(nuvem,100,100, nuvem.width * 0.09, nuvem.height * 0.09)
+        ctx.drawImage(nuvem,300,30, nuvem.width * 0.09, nuvem.height * 0.09)
+        ctx.drawImage(nuvem,400,160, nuvem.width * 0.09, nuvem.height * 0.09)
+        ctx.drawImage(sol,440,5, sol.width * 0.8, sol.height * 0.8)
     }
 }
 
 class enemy {
+
+    
 
     constructor(id) {
         this.id = id;
@@ -228,18 +250,18 @@ class enemy {
         this.speed = 10 + enemyStack.enemies.length;
         this.color = colors[Math.floor(Math.random() * colors.length)];
         this.life = 5;
-      //["red", "blue", "yellow", "green", "white", "black"]
-        if(this.color == "red"){
-            this.life +=5;
-        }else if(this.color === "blue"){
-            this.life +=10;
-        }else if(this.color == "yellow"){
-            this.life +=15;
-        }else if(this.color == "green"){
-            this.life +=20;
-        }else if(this.color == "orange"){
+        //["red", "blue", "yellow", "green", "white", "black"]
+        if (this.color == "red") {
+            this.life += 5;
+        } else if (this.color === "blue") {
+            this.life += 10;
+        } else if (this.color == "yellow") {
+            this.life += 15;
+        } else if (this.color == "green") {
+            this.life += 20;
+        } else if (this.color == "orange") {
             this.life += 25;
-        }else if(this.color == "black"){
+        } else if (this.color == "black") {
             this.life += 30;
         }
     }
@@ -270,7 +292,7 @@ class enemy {
 
     reset() {
         this.posX = 30
-        this.life = 15
+        this.life = 15// TODO atualizar vida
     }
 
     receiveDamage(damage) {
@@ -311,13 +333,12 @@ var enemyStack = {
     add: function (enemy) {
         this.enemies.push(enemy)
         this.life += enemy.life
-
-
     },
 
     remove: function () {
         this.enemies.pop()
-    },
+        
+        },
 
     receiveDamage: function (damage) {
         this.life -= damage
@@ -338,10 +359,10 @@ var enemyStack = {
         }
     },
 
-    reset: function() {
+    reset: function () {
         this.enemies = [];
+        this.life = 0;
     }
-
 }
 
 var tower = {
@@ -354,6 +375,7 @@ var tower = {
         var image = new Image() //Porta.
         var image2 = new Image() //Andares.
         var image3 = new Image() //escada.
+       
         image.src = "img/peça1.png"
         image2.src = "img/peça2.png"
         image3.src = "img/escada-cutout.png"
@@ -364,15 +386,17 @@ var tower = {
 
 
         // ctx.drawImage(image2, this.posX , ALTURA - 1.15 *  image.height,  image.width,  image.height)
+        
         ctx.drawImage(image, this.posX, ALTURA - 2.15 * image2.height, image2.width, image2.height)
 
         var test = towerLife.currentLife / towerLife.totalLife;
 
         for (var i = 3.15; i <= 9.15 * test; i++) {
             ctx.drawImage(image2, this.posX, ALTURA - i * image2.height, image2.width, image2.height)
+            
         }
 
-        
+
         ctx.drawImage(image3, this.posX - 10, ALTURA - 1.13 * image3.height * 0.9, image3.width * 0.8, image3.height * 0.9)
 
 
@@ -396,17 +420,23 @@ function drawInitialScreen() {
 }
 
 var initialScreen = {
-    colorBottom: '#f3f3f3',
-    text: "BUILDING DEFENSE",
-    colorText: '#00bfff',
+    // colorBottom: '#f3f3f3',
+    // text: "BUILDING DEFENSE",
+    // colorText: '#00bfff',
 
     draw: function () {
-        ctx.fillStyle = this.colorBottom
-        ctx.fillRect(0, 0, LARGURA, ALTURA)
+        // ctx.fillStyle = this.colorBottom
+        // ctx.fillRect(0, 0, LARGURA, ALTURA)
 
-        ctx.font = '60px Impact'
-        ctx.fillStyle = this.colorText
-        ctx.fillText(this.text, 95, ALTURA / 2)
+        // ctx.font = '60px Impact'
+        // ctx.fillStyle = this.colorText
+        // ctx.fillText(this.text, 95, ALTURA / 2)
+
+        var inicio = new Image()
+        inicio.onload = function () {
+            ctx.drawImage(inicio, 0, 0)
+        }
+        inicio.src = "img/inicio.png"
     }
 }
 
@@ -431,7 +461,7 @@ var score = {
     drawhite: function () {
         ctx.font = '60px Impact'
         ctx.fillStyle = "white"
-        ctx.fillText('PONTOS: ' + this.score, 150, 150)
+        ctx.fillText('PONTOS: ' + this.score, 150, 190)
     }
 
 
@@ -461,39 +491,44 @@ var towerLife = {
     },
 
     reset: function () {
+        
         this.totalLife = 10000
         this.currentLife = 10000
-    
-        if(this.score > record){
+
+        if (this.score > record) {
             localStorage.setItem("record", this.score);
         }
         this.score = 0
-    },
+    }
 
-  
 }
 
 function drawGameOver() {
     gameOver.draw()
 }
 
-var gameOver = {  
-    colorBottom: 'black',
+var gameOver = {
+    colorBottom: '#4169E1', //tom de azul
     text: "GAME OVER!",
     colorText: '#EE4000',
 
     draw: function () {
         ctx.fillStyle = this.colorBottom
         ctx.fillRect(0, 0, LARGURA, ALTURA)
-
+        var fim = new Image()
+        fim.src = "img/gameoverpng.png"
+        fim.onload = function () {
+            ctx.drawImage(fim, 0, 150)
+        }
+        
+    
+    
         ctx.font = '100px Impact'
         ctx.fillStyle = this.colorText
-        ctx.fillText(this.text, 65, ALTURA / 2)
+        ctx.fillText(this.text, 65, 100)
         ctx.fillStyle = this.colorText
-        //score.update();
-        // ctx.fillText('Pontos: ' + this.score, 170, ALTURA /4)
         score.drawhite();
-    },
+    }
 
 }
 //#endregion
