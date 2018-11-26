@@ -107,8 +107,7 @@ function run() {
         update()
         draw()
         animationFramID = window.requestAnimationFrame(run)
-       // var menu = new Audio('audio/menu.mp3')
-       // menu.play()
+    
     }
     else {
         drawGameOver()
@@ -247,7 +246,7 @@ class enemy {
         this.radius = 17;
         this.posX = 30;
         this.posY = 460;
-        this.speed = 10 + enemyStack.enemies.length;
+        this.speed = 13 + enemyStack.enemies.length;
         this.color = colors[Math.floor(Math.random() * colors.length)];
         this.life = 5;
         //["red", "blue", "yellow", "green", "white", "black"]
@@ -262,7 +261,7 @@ class enemy {
         } else if (this.color == "orange") {
             this.life += 25;
         } else if (this.color == "black") {
-            this.life += 30;
+            this.life += 35;
         }
     }
 
