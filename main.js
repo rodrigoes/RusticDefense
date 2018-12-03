@@ -6,7 +6,6 @@ var GAMEOVER
 var animationFramID
 var record
 
-
 var enemies = []
 var enemyID
 
@@ -37,7 +36,7 @@ $(function () {
 })
 
 function spawnEnemy() {
-    enemies.push(new enemy(enemyID)) //adiciona
+    enemies.push(new enemy(enemyID))
 
     enemyID++;
 }
@@ -64,24 +63,23 @@ function createCanvas() {
     jogoID.appendChild(canvas)
 
     document.addEventListener("mousedown", clique) //Clique.
-    /*var audio = new Audio('audio/menu.mp3')
-    menubar.play()
-*/
+
 }
 
 function iniciar() {
+
     window.cancelAnimationFrame(animationFramID)
     inicializarVariaveis()
 
     clearInterval(spawnEnemyIntervalID)
     spawnEnemyIntervalID = setInterval(spawnEnemy, 1000) //1 segundos.
 
-    record = localStorage.getItem("record");
-
+    //record = localStorage.getItem("record");
+    /*
     if (record = null) {
         record = 0;
     }
-
+    */
     run()
    
 }
@@ -103,41 +101,40 @@ function inicializarVariaveis() {
 }
 
 function run() {
+
     if (!GAMEOVER) {
+
         update()
         draw()
         animationFramID = window.requestAnimationFrame(run)
     
     }
     else {
+
         drawGameOver()
+    
     }
 }
 
 function update() {
+
     frames++
-
     target.update()
-
     enemies.forEach(enemy => enemy.update())
-
     enemyStack.update()
-
     score.update()
+
 }
 
 function draw() {
 
     drawBrackground()
-
     tower.draw()
-
     enemies.forEach(enemy => enemy.draw());
-
     enemyStack.draw()
-
     drawUI()
     target.draw()
+
 }
 
 var cursor = {
@@ -158,10 +155,10 @@ var target = {
     radius: 2,
 
     update: function () {
-        // Get the canvas position
+        // Pega a posição do canvas
         var rect = canvas.getBoundingClientRect()
 
-        // Take the cursor relative position
+        // Posição relativa do cursor
         this.x = cursor.x - rect.left
         this.y = cursor.y - rect.top
     },
@@ -200,11 +197,6 @@ var weapon = {
 function drawBrackground() {
     ctx.fillStyle = "#50beff"
     ctx.fillRect(0, 0, this.LARGURA, this.ALTURA)
-
-    // Nuvem a implementar em outra função.
-    //ctx.fillStyle = "white"
-    //ctx.fillRect(200, 100, 100, 40)
-
     chao.draw()
 }
 
@@ -214,17 +206,18 @@ var chao = {
     //color: "#ffdf70",
     color: "#00cc66",
     draw: function () {
-        ctx.fillStyle = this.color
-        // X, Y, Largura, Altura.
-        ctx.fillRect(0, ALTURA - this.height, LARGURA, this.height)
+
         var arvore = new Image() //Arvore.
         var nuvem  = new Image() //Nuvem.
         var sol    = new Image() //Sol.
+
         arvore.src = "img/arvore.png"
         nuvem.src  = "img/nuvem.png"
         sol.src    = "img/sol.png"
 
-        // ctx.drawImage(image2, this.posX , ALTURA - 1.15 *  image.height,  image.width,  image.height)
+        ctx.fillStyle = this.color
+                  // X, Y, Largura, Altura.
+        ctx.fillRect(0, ALTURA - this.height, LARGURA, this.height)
 
         for (var i = 10; i <= 550; i += 110) {
             ctx.drawImage(arvore, i, 300, arvore.width * 0.2, arvore.height * 0.2)
@@ -239,8 +232,6 @@ var chao = {
 
 class enemy {
 
-    
-
     constructor(id) {
         this.id = id;
         this.radius = 17;
@@ -249,7 +240,7 @@ class enemy {
         this.speed = 13 + enemyStack.enemies.length;
         this.color = colors[Math.floor(Math.random() * colors.length)];
         this.life = 5;
-        //["red", "blue", "yellow", "green", "white", "black"]
+        //Cores = ["red", "blue", "yellow", "green", "orange", "black"]
         if (this.color == "red") {
             this.life += 5;
         } else if (this.color === "blue") {
@@ -419,7 +410,7 @@ function drawInitialScreen() {
 }
 
 var initialScreen = {
-    // colorBottom: '#f3f3f3',
+    //Antes de fazer img de menu;.    // colorBottom: '#f3f3f3',
     // text: "BUILDING DEFENSE",
     // colorText: '#00bfff',
 
@@ -456,12 +447,12 @@ var score = {
         ctx.font = '30px Impact'
         ctx.fillStyle = this.colorText
         ctx.fillText('PONTOS: ' + this.score, 15, 75)
-    },
+    },//Chamada no jogo.
     drawhite: function () {
         ctx.font = '60px Impact'
         ctx.fillStyle = "white"
-        ctx.fillText('PONTOS: ' + this.score, 150, 190)
-    }
+        ctx.fillText('PONTOS: ' + this.score, 150, 180)
+    }//Chamada no game over.
 
 
 }
